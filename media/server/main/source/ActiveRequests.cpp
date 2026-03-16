@@ -50,6 +50,8 @@ ActiveRequests::ActiveRequests() : m_currentId{0} {}
 
 std::uint32_t ActiveRequests::insert(const MediaSourceType &mediaSourceType, std::uint32_t maxMediaBytes)
 {
+    std::unique_lock<std::mutex> lock{m_mutex};
+
     if (m_currentId == std::numeric_limits<std::uint32_t>::max())
     {
         m_currentId = 1;

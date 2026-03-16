@@ -20,15 +20,13 @@
 #include "ActiveRequests.h"
 #include <cstring>
 #include <stdexcept>
+#include "RialtoServerLogging.h"
 
 namespace firebolt::rialto::server
 {
 ActiveRequests::ActiveRequestsData::~ActiveRequestsData()
 {
-    for (std::unique_ptr<IMediaPipeline::MediaSegment> &segment : m_segments)
-    {
-        delete[] segment->getData();
-    }
+    RIALTO_SERVER_LOG_DEBUG("ActiveRequestsData destructor called");
 }
 
 AddSegmentStatus ActiveRequests::ActiveRequestsData::addSegment(const std::unique_ptr<IMediaPipeline::MediaSegment> &segment)
@@ -38,10 +36,10 @@ AddSegmentStatus ActiveRequests::ActiveRequestsData::addSegment(const std::uniqu
 
     std::unique_ptr<IMediaPipeline::MediaSegment> copiedSegment = segment->copy();
 
-    uint8_t *data = new uint8_t[segment->getDataLength()];
-    std::memcpy(data, segment->getData(), segment->getDataLength());
+    std::vector<uint8_t> data(segment->getDataLength());
+    std::memcpy(data.data(), segment->getData(), segment->getDataLength());
 
-    copiedSegment->setData(segment->getDataLength(), data);
+    copiedSegment->setData(data.size(), data.data());
     m_segments.push_back(std::move(copiedSegment));
 
     m_bytesWritten += segment->getDataLength();
@@ -52,8 +50,12 @@ ActiveRequests::ActiveRequests() : m_currentId{0} {}
 
 std::uint32_t ActiveRequests::insert(const MediaSourceType &mediaSourceType, std::uint32_t maxMediaBytes)
 {
-    std::unique_lock<std::mutex> lock{m_mutex};
-    m_requestMap.insert(std::make_pair(m_currentId, ActiveRequestsData(mediaSourceType, maxMediaBytes)));
+    if (m_currentId == std::numeric_limits<std::uint32_t>::max())
+    {
+        m_currentId = 1;
+    }
+
+    m_requestMap.emplace(m_currentId, ActiveRequestsData(mediaSourceType, maxMediaBytes));
     return m_currentId++;
 }
 

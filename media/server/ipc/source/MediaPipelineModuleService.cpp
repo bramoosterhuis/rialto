@@ -26,6 +26,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <unordered_map>
+#include <utility>
 
 namespace
 {
@@ -471,8 +472,8 @@ void MediaPipelineModuleService::attachSource(::google::protobuf::RpcController 
         {
             framed = kConfig.framed();
         }
-        AudioConfig audioConfig{numberofchannels, sampleRate,  codecSpecificConfig, format,
-                                layout,           channelMask, streamHeaders,       framed};
+        AudioConfig audioConfig{numberofchannels, sampleRate,  std::move(codecSpecificConfig), format,
+                                layout,           channelMask, std::move(streamHeaders),       framed};
 
         mediaSource =
             std::make_unique<IMediaPipeline::MediaSourceAudio>(request->mime_type(), hasDrm, audioConfig,
@@ -675,40 +676,6 @@ void MediaPipelineModuleService::setImmediateOutput(::google::protobuf::RpcContr
     {
         RIALTO_SERVER_LOG_ERROR("Set Immediate Output failed");
         controller->SetFailed("Operation failed");
-    }
-    done->Run();
-}
-
-void MediaPipelineModuleService::setReportDecodeErrors(::google::protobuf::RpcController *controller,
-                                                       const ::firebolt::rialto::SetReportDecodeErrorsRequest *request,
-                                                       ::firebolt::rialto::SetReportDecodeErrorsResponse *response,
-                                                       ::google::protobuf::Closure *done)
-{
-    RIALTO_SERVER_LOG_DEBUG("entry:");
-    if (!m_mediaPipelineService.setReportDecodeErrors(request->session_id(), request->source_id(),
-                                                      request->report_decode_errors()))
-    {
-        RIALTO_SERVER_LOG_ERROR("Set Report Decode Error failed");
-        controller->SetFailed("Operation failed");
-    }
-    done->Run();
-}
-
-void MediaPipelineModuleService::getQueuedFrames(::google::protobuf::RpcController *controller,
-                                                 const ::firebolt::rialto::GetQueuedFramesRequest *request,
-                                                 ::firebolt::rialto::GetQueuedFramesResponse *response,
-                                                 ::google::protobuf::Closure *done)
-{
-    RIALTO_SERVER_LOG_DEBUG("entry:");
-    uint32_t queuedFramesNumber;
-    if (!m_mediaPipelineService.getQueuedFrames(request->session_id(), request->source_id(), queuedFramesNumber))
-    {
-        RIALTO_SERVER_LOG_ERROR("Get queued frames failed");
-        controller->SetFailed("Operation failed");
-    }
-    else
-    {
-        response->set_queued_frames(queuedFramesNumber);
     }
     done->Run();
 }

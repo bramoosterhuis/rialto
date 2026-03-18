@@ -129,8 +129,8 @@ void autoAudioSinkChildRemovedCallback(GstChildProxy *obj, GObject *object, gcha
 namespace firebolt::rialto::server::tasks::generic
 {
 SetupElement::SetupElement(GenericPlayerContext &context,
-                           std::shared_ptr<firebolt::rialto::wrappers::IGstWrapper> gstWrapper,
-                           std::shared_ptr<firebolt::rialto::wrappers::IGlibWrapper> glibWrapper,
+                           const std::shared_ptr<firebolt::rialto::wrappers::IGstWrapper> &gstWrapper,
+                           const std::shared_ptr<firebolt::rialto::wrappers::IGlibWrapper> &glibWrapper,
                            IGstGenericPlayerPrivate &player, GstElement *element)
     : m_context{context}, m_gstWrapper{gstWrapper}, m_glibWrapper{glibWrapper}, m_player{player}, m_element{element}
 {
@@ -246,10 +246,6 @@ void SetupElement::execute() const
                 RIALTO_SERVER_LOG_INFO("Setting video decoder handle for subtitle sink: %p", m_element);
                 m_context.isVideoHandleSet = true;
             }
-            if (m_context.pendingReportDecodeErrorsForVideo.has_value())
-            {
-                m_player.setReportDecodeErrors();
-            }
         }
     }
 
@@ -337,6 +333,7 @@ void SetupElement::execute() const
     {
         m_gstWrapper->gstBaseParseSetPtsInterpolation(GST_BASE_PARSE(m_element), FALSE);
     }
+
     m_gstWrapper->gstObjectUnref(m_element);
 }
 } // namespace firebolt::rialto::server::tasks::generic

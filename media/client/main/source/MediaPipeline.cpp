@@ -313,16 +313,6 @@ bool MediaPipeline::setImmediateOutput(int32_t sourceId, bool immediateOutput)
     return m_mediaPipelineIpc->setImmediateOutput(sourceId, immediateOutput);
 }
 
-bool MediaPipeline::setReportDecodeErrors(int32_t sourceId, bool reportDecodeErrors)
-{
-    return m_mediaPipelineIpc->setReportDecodeErrors(sourceId, reportDecodeErrors);
-}
-
-bool MediaPipeline::getQueuedFrames(int32_t sourceId, uint32_t &queuedFrames)
-{
-    return m_mediaPipelineIpc->getQueuedFrames(sourceId, queuedFrames);
-}
-
 bool MediaPipeline::getImmediateOutput(int32_t sourceId, bool &immediateOutput)
 {
     return m_mediaPipelineIpc->getImmediateOutput(sourceId, immediateOutput);
@@ -818,7 +808,7 @@ void MediaPipeline::notifyNeedMediaData(int32_t sourceId, size_t frameCount, uin
                 RIALTO_CLIENT_LOG_INFO("NeedMediaData received in state != RUNNING, ignoring request id %u", requestId);
                 break;
             }
-            m_needDataRequestMap[requestId] = needDataRequest;
+            m_needDataRequestMap[requestId] = std::move(needDataRequest);
         }
 
         std::shared_ptr<IMediaPipelineClient> client = m_mediaPipelineClient.lock();

@@ -285,7 +285,7 @@ void GstGenericPlayer::termPipeline()
     {
         m_gstWrapper->gstElementSendEvent(m_context.pipeline, m_gstWrapper->gstEventNewFlushStart());
         m_gstWrapper->gstElementSendEvent(m_context.pipeline, m_gstWrapper->gstEventNewFlushStop(FALSE));
-        RIALTO_SERVER_LOG_DEBUG("DPS::Sent flush events to drain encrypted buffers before Stop");
+        RIALTO_SERVER_LOG_WARN("DPS::Sent flush events to drain encrypted buffers before Stop");
     }
     
     m_taskFactory->createStop(m_context, *this)->execute();

@@ -566,7 +566,7 @@ void ChannelImpl::processTimeoutEvent()
     std::vector<MethodCall> timedOuts;
 
     {
-        // check if any method call has no expired
+        // check if any method call has now expired
         std::unique_lock<std::mutex> locker(m_lock);
 
         // remove the method calls that have expired

@@ -88,15 +88,16 @@ Timer::~Timer()
 void Timer::cancel()
 {
     m_active = false;
+    m_cv.notify_one();
 
-    if (std::this_thread::get_id() != m_thread.get_id() && m_thread.joinable())
+    if (std::this_thread::get_id() == m_thread.get_id())
     {
-        m_cv.notify_one();
-        m_thread.join();
+        return;
     }
-    else if (m_thread.joinable())
+
+    if (m_thread.joinable())
     {
-        m_thread.detach();
+        m_thread.join();
     }
 }
 

@@ -22,7 +22,6 @@
 #include <cstring>
 #include <limits>
 #include <stdexcept>
-#include <vector>
 
 namespace firebolt::rialto::server
 {

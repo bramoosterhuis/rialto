@@ -1219,8 +1219,6 @@ GstBuffer *GstGenericPlayer::createBuffer(const IMediaPipeline::MediaSegment &me
             {
                 m_gstWrapper->gstBufferUnref(subsamples);
             }
-            m_gstWrapper->gstBufferUnref(gstBuffer);
-            return nullptr;
         }
     }
 

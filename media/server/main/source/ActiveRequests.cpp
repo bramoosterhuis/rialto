@@ -18,9 +18,10 @@
  */
 
 #include "ActiveRequests.h"
-#include <cstring>
-#include <stdexcept>
 #include "RialtoServerLogging.h"
+#include <cstring>
+#include <limits>
+#include <stdexcept>
 
 namespace firebolt::rialto::server
 {
@@ -36,10 +37,10 @@ AddSegmentStatus ActiveRequests::ActiveRequestsData::addSegment(const std::uniqu
 
     std::unique_ptr<IMediaPipeline::MediaSegment> copiedSegment = segment->copy();
 
-    std::vector<uint8_t> data(segment->getDataLength());
-    std::memcpy(data.data(), segment->getData(), segment->getDataLength());
+    m_segmentBuffers.emplace_back(segment->getDataLength());
+    std::memcpy(m_segmentBuffers.back().data(), segment->getData(), segment->getDataLength());
 
-    copiedSegment->setData(data.size(), data.data());
+    copiedSegment->setData(m_segmentBuffers.back().size(), m_segmentBuffers.back().data());
     m_segments.push_back(std::move(copiedSegment));
 
     m_bytesWritten += segment->getDataLength();
@@ -57,7 +58,17 @@ std::uint32_t ActiveRequests::insert(const MediaSourceType &mediaSourceType, std
         m_currentId = 1;
     }
 
-    m_requestMap.emplace(m_currentId, ActiveRequestsData(mediaSourceType, maxMediaBytes));
+    auto [it, inserted] = m_requestMap.emplace(m_currentId, ActiveRequestsData(mediaSourceType, maxMediaBytes));
+    if (!inserted)
+    {
+        do
+        {
+            ++m_currentId;
+        } while (m_requestMap.find(m_currentId) != m_requestMap.end());
+
+        m_requestMap.emplace(m_currentId, ActiveRequestsData(mediaSourceType, maxMediaBytes));
+    }
+
     return m_currentId++;
 }
 

@@ -92,6 +92,10 @@ void Timer::cancel()
 
     if (std::this_thread::get_id() == m_thread.get_id())
     {
+        if (m_thread.joinable())
+        {
+            m_thread.detach();
+        }
         return;
     }
 

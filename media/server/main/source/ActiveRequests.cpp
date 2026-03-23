@@ -25,10 +25,7 @@
 
 namespace firebolt::rialto::server
 {
-ActiveRequests::ActiveRequestsData::~ActiveRequestsData()
-{
-    RIALTO_SERVER_LOG_DEBUG("ActiveRequestsData destructor called");
-}
+ActiveRequests::ActiveRequestsData::~ActiveRequestsData() {}
 
 AddSegmentStatus ActiveRequests::ActiveRequestsData::addSegment(const std::unique_ptr<IMediaPipeline::MediaSegment> &segment)
 {

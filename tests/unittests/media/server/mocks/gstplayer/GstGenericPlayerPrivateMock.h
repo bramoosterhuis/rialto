@@ -80,6 +80,7 @@ public:
     MOCK_METHOD(void, stopSubtitleClockResyncTimer, (), (override));
     MOCK_METHOD(bool, hasSourceType, (const MediaSourceType &mediaSourceType), (const, override));
     MOCK_METHOD(void, notifyPlaybackInfo, (), (override));
+    MOCK_METHOD(void, enableBroadcomDecoderWorkaround, (), (override));
 };
 } // namespace firebolt::rialto::server
 

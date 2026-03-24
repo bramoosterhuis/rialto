@@ -74,6 +74,7 @@ message DestroySessionResponse {
  * @param[in]  type         The type of media.
  * @param[in]  mime_type    The mime type.
  * @param[in]  url          The url.
+ * @param[in]  isLive       Indicates if the media is live.
  *
  */
 message LoadRequest {
@@ -86,6 +87,7 @@ message LoadRequest {
     optional MediaType  type = 2;
     optional string     mime_type = 3;
     optional string     url = 4;
+    optional bool       is_live = 5;
 }
 message LoadResponse {
 }

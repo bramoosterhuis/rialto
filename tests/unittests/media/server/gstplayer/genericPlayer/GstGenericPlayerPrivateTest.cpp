@@ -59,6 +59,7 @@ constexpr uint32_t kCrypt{7};
 constexpr uint32_t kSkip{7};
 constexpr firebolt::rialto::CipherMode kCipherMode{firebolt::rialto::CipherMode::CENS};
 constexpr VideoRequirements m_videoReq{kMinPrimaryVideoWidth, kMinPrimaryVideoHeight};
+constexpr bool kIsLive{false};
 constexpr uint32_t kBufferingLimit{123};
 constexpr bool kUseBuffering{true};
 const std::shared_ptr<firebolt::rialto::CodecData> kEmptyCodecData{};
@@ -117,7 +118,7 @@ protected:
     {
         gstPlayerWillBeCreated();
         m_sut = std::make_unique<GstGenericPlayer>(&m_gstPlayerClient, m_decryptionServiceMock, MediaType::MSE,
-                                                   m_videoReq, m_gstWrapperMock, m_glibWrapperMock,
+                                                   m_videoReq, kIsLive, m_gstWrapperMock, m_glibWrapperMock,
                                                    m_rdkGstreamerUtilsWrapperMock, m_gstInitialiserMock,
                                                    std::move(m_flushWatcher), m_gstSrcFactoryMock, m_timerFactoryMock,
                                                    std::move(m_taskFactory), std::move(workerThreadFactory),

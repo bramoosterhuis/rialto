@@ -80,7 +80,7 @@ std::shared_ptr<IGstGenericPlayerFactory> IGstGenericPlayerFactory::getFactory()
 
 std::unique_ptr<IGstGenericPlayer> GstGenericPlayerFactory::createGstGenericPlayer(
     IGstGenericPlayerClient *client, IDecryptionService &decryptionService, MediaType type,
-    const VideoRequirements &videoRequirements,
+    const VideoRequirements &videoRequirements, bool isLive,
     const std::shared_ptr<firebolt::rialto::wrappers::IRdkGstreamerUtilsWrapperFactory> &rdkGstreamerUtilsWrapperFactory)
 {
     std::unique_ptr<IGstGenericPlayer> gstPlayer;
@@ -106,7 +106,7 @@ std::unique_ptr<IGstGenericPlayer> GstGenericPlayerFactory::createGstGenericPlay
             throw std::runtime_error("Cannot create RdkGstreamerUtilsWrapper");
         }
         gstPlayer = std::make_unique<
-            GstGenericPlayer>(client, decryptionService, type, videoRequirements, gstWrapper, glibWrapper,
+            GstGenericPlayer>(client, decryptionService, type, videoRequirements, isLive, gstWrapper, glibWrapper,
                               rdkGstreamerUtilsWrapper, IGstInitialiser::instance(), std::make_unique<FlushWatcher>(),
                               IGstSrcFactory::getFactory(), common::ITimerFactory::getFactory(),
                               std::make_unique<GenericPlayerTaskFactory>(client, gstWrapper, glibWrapper,
@@ -125,7 +125,7 @@ std::unique_ptr<IGstGenericPlayer> GstGenericPlayerFactory::createGstGenericPlay
 
 GstGenericPlayer::GstGenericPlayer(
     IGstGenericPlayerClient *client, IDecryptionService &decryptionService, MediaType type,
-    const VideoRequirements &videoRequirements,
+    const VideoRequirements &videoRequirements, bool isLive,
     const std::shared_ptr<firebolt::rialto::wrappers::IGstWrapper> &gstWrapper,
     const std::shared_ptr<firebolt::rialto::wrappers::IGlibWrapper> &glibWrapper,
     const std::shared_ptr<firebolt::rialto::wrappers::IRdkGstreamerUtilsWrapper> &rdkGstreamerUtilsWrapper,
@@ -136,7 +136,7 @@ GstGenericPlayer::GstGenericPlayer(
     std::shared_ptr<IGstProtectionMetadataHelperFactory> gstProtectionMetadataFactory)
     : m_gstPlayerClient(client), m_gstWrapper{gstWrapper}, m_glibWrapper{glibWrapper},
       m_rdkGstreamerUtilsWrapper{rdkGstreamerUtilsWrapper}, m_timerFactory{timerFactory},
-      m_taskFactory{std::move(taskFactory)}, m_flushWatcher{std::move(flushWatcher)}
+      m_taskFactory{std::move(taskFactory)}, m_flushWatcher{std::move(flushWatcher)}, m_isLive{isLive}
 {
     RIALTO_SERVER_LOG_DEBUG("GstGenericPlayer is constructed.");
 
@@ -471,6 +471,61 @@ void GstGenericPlayer::notifyPlaybackInfo()
     getPosition(info.currentPosition);
     getVolume(info.volume);
     m_gstPlayerClient->notifyPlaybackInfo(info);
+}
+
+void GstGenericPlayer::enableBroadcomDecoderWorkaround()
+{
+    constexpr std::chrono::milliseconds kDecoderStateCheckPeriod{10};
+    constexpr int kDecoderStateCheckMaxAttempts{100};
+    static int attempt{0};
+    if (!m_isLive)
+    {
+        // This workaround has to be enabled only for live streams
+        return;
+    }
+    GstElementFactory *factory = m_gstWrapper->gstElementFactoryFind("brcmaudiosink");
+    if (!factory)
+    {
+        // This workaround has to be enabled only for broadcom platform
+        return;
+    }
+    m_gstWrapper->gstObjectUnref(GST_OBJECT(factory));
+    if (m_playbackRateChangeTimer->isActive())
+    {
+        // Timer is already running, no need to start it again
+        return;
+    }
+    attempt = 0;
+
+    m_playbackRateChangeTimer = m_timerFactory->createTimer(
+        kDecoderStateCheckPeriod,
+        [&]()
+        {
+            constexpr double kDefaultInitialRateCorrectionSpeed = 1.000001;
+            constexpr uint32_t kRequiredQueuedFrames{6};
+            GstElement *videoDecoder = getDecoder(MediaSourceType::VIDEO);
+            uint32_t frames{std::numeric_limits<uint32_t>::max()};
+            if (videoDecoder)
+            {
+                m_glibWrapper->gObjectGet(videoDecoder, "queued_frames", &frames, nullptr);
+                m_glibWrapper->gObjectUnref(videoDecoder);
+            }
+            if (frames == std::numeric_limits<uint32_t>::max() || frames >= kRequiredQueuedFrames ||
+                attempt++ == kDecoderStateCheckMaxAttempts)
+            {
+                GstStructure *structure{m_gstWrapper->gstStructureNew("custom-instant-rate-change", "rate", G_TYPE_DOUBLE,
+                                                                      kDefaultInitialRateCorrectionSpeed, NULL)};
+                m_gstWrapper->gstElementSendEvent(m_context.pipeline,
+                                                  m_gstWrapper->gstEventNewCustom(GST_EVENT_CUSTOM_DOWNSTREAM_OOB,
+                                                                                  structure));
+                structure = m_gstWrapper->gstStructureNew("custom-instant-rate-change", "rate", G_TYPE_DOUBLE, 1.0, NULL);
+                m_gstWrapper->gstElementSendEvent(m_context.pipeline,
+                                                  m_gstWrapper->gstEventNewCustom(GST_EVENT_CUSTOM_DOWNSTREAM_OOB,
+                                                                                  structure));
+                m_playbackRateChangeTimer->cancel();
+            }
+        },
+        firebolt::rialto::common::TimerType::PERIODIC);
 }
 
 GstElement *GstGenericPlayer::getDecoder(const MediaSourceType &mediaSourceType)

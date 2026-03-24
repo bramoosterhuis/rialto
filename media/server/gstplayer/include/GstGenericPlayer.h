@@ -195,6 +195,7 @@ private:
     bool isAsync(const MediaSourceType &mediaSourceType) const;
     void notifyPlaybackInfo() override;
     void enableBroadcomDecoderWorkaround() override;
+    void cancelBroadcomDecoderWorkaroundTimer() override;
 
 private:
     /**

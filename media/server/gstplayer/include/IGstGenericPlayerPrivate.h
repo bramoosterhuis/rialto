@@ -324,6 +324,11 @@ public:
      * a "fake" playback rate change to change rate control mode in the decoder.
      */
     virtual void enableBroadcomDecoderWorkaround() = 0;
+
+    /**
+     * @brief cancels the timer a workaround for Broadcom decoder issue with audio cuts during playback rate change.
+     */
+    virtual void cancelBroadcomDecoderWorkaroundTimer() = 0;
 };
 } // namespace firebolt::rialto::server
 

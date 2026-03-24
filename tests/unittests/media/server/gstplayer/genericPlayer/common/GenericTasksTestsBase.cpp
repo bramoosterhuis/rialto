@@ -2246,6 +2246,7 @@ void GenericTasksTestsBase::shouldStopGstPlayer()
     audioStreamIt->second.isDataNeeded = true;
     EXPECT_CALL(testContext->m_gstPlayer, stopPositionReportingAndCheckAudioUnderflowTimer());
     EXPECT_CALL(testContext->m_gstPlayer, stopNotifyPlaybackInfoTimer());
+    EXPECT_CALL(testContext->m_gstPlayer, cancelBroadcomDecoderWorkaroundTimer());
     EXPECT_CALL(testContext->m_gstPlayer, changePipelineState(GST_STATE_NULL)).WillOnce(Return(GST_STATE_CHANGE_SUCCESS));
 }
 
@@ -3056,6 +3057,7 @@ void GenericTasksTestsBase::shouldFlushAudio()
 {
     EXPECT_CALL(*testContext->m_gstWrapper, gstBufferUnref(&testContext->m_audioBuffer));
     EXPECT_CALL(testContext->m_gstPlayerClient, invalidateActiveRequests(firebolt::rialto::MediaSourceType::AUDIO));
+    EXPECT_CALL(testContext->m_gstPlayer, cancelBroadcomDecoderWorkaroundTimer());
     EXPECT_CALL(testContext->m_gstPlayerClient, notifySourceFlushed(firebolt::rialto::MediaSourceType::AUDIO));
     EXPECT_CALL(testContext->m_gstPlayer, setSourceFlushed(firebolt::rialto::MediaSourceType::AUDIO));
 }
@@ -3064,6 +3066,7 @@ void GenericTasksTestsBase::shouldFlushVideo()
 {
     EXPECT_CALL(*testContext->m_gstWrapper, gstBufferUnref(&testContext->m_videoBuffer));
     EXPECT_CALL(testContext->m_gstPlayerClient, invalidateActiveRequests(firebolt::rialto::MediaSourceType::VIDEO));
+    EXPECT_CALL(testContext->m_gstPlayer, cancelBroadcomDecoderWorkaroundTimer());
     EXPECT_CALL(testContext->m_gstPlayerClient, notifySourceFlushed(firebolt::rialto::MediaSourceType::VIDEO));
     EXPECT_CALL(testContext->m_gstPlayer, setSourceFlushed(firebolt::rialto::MediaSourceType::VIDEO));
 }

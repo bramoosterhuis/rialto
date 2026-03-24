@@ -45,6 +45,10 @@ namespace
  */
 constexpr std::chrono::milliseconds kPositionReportTimerMs{250};
 constexpr std::chrono::seconds kSubtitleClockResyncInterval{10};
+constexpr std::chrono::milliseconds kDecoderStateCheckPeriod{10};
+constexpr int kDecoderStateCheckMaxAttempts{100};
+constexpr double kDefaultInitialRateCorrectionSpeed{1.000001};
+constexpr uint32_t kRequiredQueuedFrames{6};
 
 bool operator==(const firebolt::rialto::server::SegmentData &lhs, const firebolt::rialto::server::SegmentData &rhs)
 {
@@ -263,6 +267,7 @@ void GstGenericPlayer::resetWorkerThread()
 
 void GstGenericPlayer::termPipeline()
 {
+    cancelBroadcomDecoderWorkaroundTimer();
     if (m_finishSourceSetupTimer && m_finishSourceSetupTimer->isActive())
     {
         m_finishSourceSetupTimer->cancel();
@@ -475,8 +480,6 @@ void GstGenericPlayer::notifyPlaybackInfo()
 
 void GstGenericPlayer::enableBroadcomDecoderWorkaround()
 {
-    constexpr std::chrono::milliseconds kDecoderStateCheckPeriod{10};
-    constexpr int kDecoderStateCheckMaxAttempts{100};
     static int attempt{0};
     if (!m_isLive)
     {
@@ -490,7 +493,7 @@ void GstGenericPlayer::enableBroadcomDecoderWorkaround()
         return;
     }
     m_gstWrapper->gstObjectUnref(GST_OBJECT(factory));
-    if (m_playbackRateChangeTimer->isActive())
+    if (m_playbackRateChangeTimer && m_playbackRateChangeTimer->isActive())
     {
         // Timer is already running, no need to start it again
         return;
@@ -501,8 +504,6 @@ void GstGenericPlayer::enableBroadcomDecoderWorkaround()
         kDecoderStateCheckPeriod,
         [&]()
         {
-            constexpr double kDefaultInitialRateCorrectionSpeed = 1.000001;
-            constexpr uint32_t kRequiredQueuedFrames{6};
             GstElement *videoDecoder = getDecoder(MediaSourceType::VIDEO);
             uint32_t frames{std::numeric_limits<uint32_t>::max()};
             if (videoDecoder)
@@ -526,6 +527,14 @@ void GstGenericPlayer::enableBroadcomDecoderWorkaround()
             }
         },
         firebolt::rialto::common::TimerType::PERIODIC);
+}
+
+void GstGenericPlayer::cancelBroadcomDecoderWorkaroundTimer()
+{
+    if (m_playbackRateChangeTimer)
+    {
+        m_playbackRateChangeTimer->cancel();
+    }
 }
 
 GstElement *GstGenericPlayer::getDecoder(const MediaSourceType &mediaSourceType)

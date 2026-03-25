@@ -524,6 +524,7 @@ void GstGenericPlayer::enableBroadcomDecoderWorkaround()
                                                   m_gstWrapper->gstEventNewCustom(GST_EVENT_CUSTOM_DOWNSTREAM_OOB,
                                                                                   structure));
                 m_playbackRateChangeTimer->cancel();
+                RIALTO_SERVER_LOG_DEBUG("Broadcom decoder workaround enabled after %d attempts", attempt);
             }
         },
         firebolt::rialto::common::TimerType::PERIODIC);
@@ -534,6 +535,7 @@ void GstGenericPlayer::cancelBroadcomDecoderWorkaroundTimer()
     if (m_playbackRateChangeTimer)
     {
         m_playbackRateChangeTimer->cancel();
+        m_playbackRateChangeTimer.reset();
     }
 }
 

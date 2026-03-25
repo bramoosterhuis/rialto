@@ -2208,7 +2208,7 @@ void GstGenericPlayer::stopPositionReportingAndCheckAudioUnderflowTimer()
 
 void GstGenericPlayer::startNotifyPlaybackInfoTimer()
 {
-    static constexpr std::chrono::milliseconds kPlaybackInfoTimerMs{32};
+    static constexpr std::chrono::milliseconds kPlaybackInfoTimerMs{100};
     if (m_playbackInfoTimer && m_playbackInfoTimer->isActive())
     {
         return;

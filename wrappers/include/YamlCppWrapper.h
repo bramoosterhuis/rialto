@@ -17,10 +17,11 @@
  * limitations under the License.
  */
 
-#ifndef FIREBOLT_RIALTO_WRAPPERS_INTERFACE_YAML_CPP_WRAPPER_H_
-#define FIREBOLT_RIALTO_WRAPPERS_INTERFACE_YAML_CPP_WRAPPER_H_
+#ifndef FIREBOLT_RIALTO_WRAPPERS_YAML_CPP_WRAPPER_H_
+#define FIREBOLT_RIALTO_WRAPPERS_YAML_CPP_WRAPPER_H_
 
 #include "IYamlCppWrapper.h"
+#include <memory>
 
 namespace firebolt::rialto::wrappers
 {
@@ -45,4 +46,4 @@ public:
 
 } // namespace firebolt::rialto::wrappers
 
-#endif // FIREBOLT_RIALTO_WRAPPERS_INTERFACE_YAML_CPP_WRAPPER_H_
+#endif // FIREBOLT_RIALTO_WRAPPERS_YAML_CPP_WRAPPER_H_

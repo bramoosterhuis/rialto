@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 
-#ifndef FIREBOLT_RIALTO_WRAPPERS_INTERFACE_IYAML_CPP_WRAPPER_H_
-#define FIREBOLT_RIALTO_WRAPPERS_INTERFACE_IYAML_CPP_WRAPPER_H_
+#ifndef FIREBOLT_RIALTO_WRAPPERS_I_YAML_CPP_WRAPPER_H_
+#define FIREBOLT_RIALTO_WRAPPERS_I_YAML_CPP_WRAPPER_H_
 
 #include <AudioDecoderCapabilities.h>
 #include <MediaCommon.h>
@@ -60,4 +60,4 @@ public:
 };
 } // namespace firebolt::rialto::wrappers
 
-#endif // FIREBOLT_RIALTO_WRAPPERS_INTERFACE_IYAML_CPP_WRAPPER_H_
+#endif // FIREBOLT_RIALTO_WRAPPERS_I_YAML_CPP_WRAPPER_H_

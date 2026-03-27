@@ -449,7 +449,7 @@ TEST_F(MediaPipelineCapabilitiesTest, checkIsVideoMaster)
  *  Server is terminated.
  *
  * Expected Results:
- *  Rialto server checks, if mime types are supported.
+ *  Rialto server checks, if audio decoder capabilities are returned.
  *
  * Code:
  */
@@ -494,7 +494,7 @@ TEST_F(MediaPipelineCapabilitiesTest, checkSupportedAudioDecoderCapabilities)
  *  Server is terminated.
  *
  * Expected Results:
- *  Rialto server checks, if mime types are supported.
+ *  Rialto server checks, if video decoder capabilities are returned.
  *
  * Code:
  */

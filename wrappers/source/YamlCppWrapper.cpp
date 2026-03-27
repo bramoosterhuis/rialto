@@ -804,7 +804,7 @@ try
     }
     return DecoderCapabilitiesStatus::OK;
 }
-catch (const std::exception &e)
+catch (const std::exception &)
 {
     return DecoderCapabilitiesStatus::SCHEMA_VALIDATION_FAILED;
 }
@@ -837,7 +837,7 @@ try
     }
     return DecoderCapabilitiesStatus::OK;
 }
-catch (const std::exception &e)
+catch (const std::exception &)
 {
     return DecoderCapabilitiesStatus::SCHEMA_VALIDATION_FAILED;
 }

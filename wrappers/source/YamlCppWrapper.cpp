@@ -390,7 +390,7 @@ std::vector<firebolt::rialto::Mpeg2Profile> buildMpeg2Profiles(const YAML::Node 
     {
         for (YAML::const_iterator profilesIt = profiles.begin(); profilesIt != profiles.end(); ++profilesIt)
         {
-            firebolt::rialto::Mpeg2Profile profile;
+            firebolt::rialto::Mpeg2Profile profile{};
             const std::string kProfileType{profilesIt->first.as<std::string>()};
             const std::string kMaxLevel{profilesIt->second["maxLevel"].as<std::string>()};
             if ("MPEG2_MAIN" == kProfileType)
@@ -428,7 +428,7 @@ std::vector<firebolt::rialto::H264Profile> buildH264Profiles(const YAML::Node &p
     {
         for (YAML::const_iterator profilesIt = profiles.begin(); profilesIt != profiles.end(); ++profilesIt)
         {
-            firebolt::rialto::H264Profile profile;
+            firebolt::rialto::H264Profile profile{};
             const std::string kProfileType{profilesIt->first.as<std::string>()};
             const std::string kMaxLevel{profilesIt->second["maxLevel"].as<std::string>()};
             if ("H264_BASELINE" == kProfileType)
@@ -486,7 +486,7 @@ std::vector<firebolt::rialto::H265Profile> buildH265Profiles(const YAML::Node &p
     {
         for (YAML::const_iterator profilesIt = profiles.begin(); profilesIt != profiles.end(); ++profilesIt)
         {
-            firebolt::rialto::H265Profile profile;
+            firebolt::rialto::H265Profile profile{};
             const std::string kProfileType{profilesIt->first.as<std::string>()};
             const std::string kMaxLevel{profilesIt->second["maxLevel"].as<std::string>()};
             if ("H265_MAIN" == kProfileType)
@@ -548,7 +548,7 @@ std::vector<firebolt::rialto::Vp9Profile> buildVp9Profiles(const YAML::Node &pro
     {
         for (YAML::const_iterator profilesIt = profiles.begin(); profilesIt != profiles.end(); ++profilesIt)
         {
-            firebolt::rialto::Vp9Profile profile;
+            firebolt::rialto::Vp9Profile profile{};
             const std::string kProfileType{profilesIt->first.as<std::string>()};
             const std::string kMaxLevel{profilesIt->second["maxLevel"].as<std::string>()};
             if ("VP9_PROFILE_0" == kProfileType)
@@ -638,7 +638,7 @@ std::vector<firebolt::rialto::Av1Profile> buildAv1Profiles(const YAML::Node &pro
     {
         for (YAML::const_iterator profilesIt = profiles.begin(); profilesIt != profiles.end(); ++profilesIt)
         {
-            firebolt::rialto::Av1Profile profile;
+            firebolt::rialto::Av1Profile profile{};
             const std::string kProfileType{profilesIt->first.as<std::string>()};
             const std::string kMaxLevel{profilesIt->second["maxLevel"].as<std::string>()};
             if ("AV1_MAIN" == kProfileType)

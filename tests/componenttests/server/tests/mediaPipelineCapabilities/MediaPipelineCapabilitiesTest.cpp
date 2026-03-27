@@ -462,8 +462,8 @@ TEST_F(MediaPipelineCapabilitiesTest, checkSupportedAudioDecoderCapabilities)
         .matchResponse(
             [](const auto &resp)
             {
-                resp.interface_version() == kAudioCapabilities.interfaceVersion &&resp.schema_version() ==
-                    kAudioCapabilities.schemaVersion;
+                EXPECT_EQ(resp.interface_version(), kAudioCapabilities.interfaceVersion);
+                EXPECT_EQ(resp.schema_version(), kAudioCapabilities.schemaVersion);
             });
 };
 
@@ -507,8 +507,8 @@ TEST_F(MediaPipelineCapabilitiesTest, checkSupportedVideoDecoderCapabilities)
         .matchResponse(
             [](const auto &resp)
             {
-                resp.interface_version() == kVideoCapabilities.interfaceVersion &&resp.schema_version() ==
-                    kVideoCapabilities.schemaVersion;
+                EXPECT_EQ(resp.interface_version(), kVideoCapabilities.interfaceVersion);
+                EXPECT_EQ(resp.schema_version(), kVideoCapabilities.schemaVersion);
             });
 };
 } // namespace firebolt::rialto::server::ct

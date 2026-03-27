@@ -45,14 +45,13 @@ if( RIALTO_ENABLE_CONFIG_FILE )
         source/JsonCppWrapperFactory.cpp)
 endif()
 
-find_package (yaml-cpp REQUIRED)
-
 if( NOT CMAKE_BUILD_FLAG STREQUAL "UnitTests" AND NOT CMAKE_BUILD_FLAG STREQUAL "ComponentTests" )
     add_compile_definitions(WRAPPERS_ENABLED)
 
     find_package( ocdm REQUIRED )
     find_package( WPEFrameworkCore REQUIRED )
     find_package( WPEFrameworkCOM REQUIRED )
+    find_package (yaml-cpp REQUIRED)
 
     set(WRAPPER_INCLUDES
         ${OCdm_INCLUDE_DIRS}

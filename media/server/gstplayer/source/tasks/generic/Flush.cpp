@@ -42,12 +42,12 @@ void Flush::execute() const
 {
     if (m_context.flushOnPrerollController.shouldPostponeFlush(m_type))
     {
-        RIALTO_SERVER_LOG_WARN("Postponing Flush for %s source", common::convertMediaSourceType(m_type));
+        RIALTO_SERVER_LOG_MIL("Postponing Flush for %s source", common::convertMediaSourceType(m_type));
         m_player.postponeFlush(m_type, m_resetTime);
         return;
     }
 
-    RIALTO_SERVER_LOG_DEBUG("Executing Flush for %s source", common::convertMediaSourceType(m_type));
+    RIALTO_SERVER_LOG_MIL("Executing Flush for %s source", common::convertMediaSourceType(m_type));
 
     // Get source first
     GstElement *source{nullptr};
@@ -80,23 +80,28 @@ void Flush::execute() const
     m_context.initialPositions.erase(sourceElem->second.appSrc);
 
     m_gstPlayerClient->invalidateActiveRequests(m_type);
-
+    RIALTO_SERVER_LOG_MIL("Flush.cpp - execute: Before if block");
     if (GST_STATE(m_context.pipeline) >= GST_STATE_PAUSED)
     {
         m_player.stopPositionReportingAndCheckAudioUnderflowTimer();
+        RIALTO_SERVER_LOG_MIL("Flush.cpp - execute: Before set Flushing");
         m_context.flushOnPrerollController.setFlushing(m_type, GST_STATE(m_context.pipeline));
 
         // Flush source
+        RIALTO_SERVER_LOG_MIL("Flush.cpp - execute: Before new flush event start");
         GstEvent *flushStart = m_gstWrapper->gstEventNewFlushStart();
+        RIALTO_SERVER_LOG_MIL("Flush.cpp - execute: After new flush event start");
         if (!m_gstWrapper->gstElementSendEvent(source, flushStart))
         {
-            RIALTO_SERVER_LOG_WARN("failed to send flush-start event for %s", common::convertMediaSourceType(m_type));
+            RIALTO_SERVER_LOG_MIL("failed to send flush-start event for %s", common::convertMediaSourceType(m_type));
         }
 
+        RIALTO_SERVER_LOG_MIL("Flush.cpp - execute: Before new flush event stop");
         GstEvent *flushStop = m_gstWrapper->gstEventNewFlushStop(m_resetTime);
+        RIALTO_SERVER_LOG_MIL("Flush.cpp - execute: Before new flush event stop");
         if (!m_gstWrapper->gstElementSendEvent(source, flushStop))
         {
-            RIALTO_SERVER_LOG_WARN("failed to send flush-stop event for %s", common::convertMediaSourceType(m_type));
+            RIALTO_SERVER_LOG_MIL("failed to send flush-stop event for %s", common::convertMediaSourceType(m_type));
         }
     }
     else
@@ -110,14 +115,19 @@ void Flush::execute() const
     m_context.eosNotified = false;
 
     // Notify client, that flush has been finished
+    RIALTO_SERVER_LOG_MIL("Flush.cpp - execute: Before notify source flushed");
     m_gstPlayerClient->notifySourceFlushed(m_type);
+    RIALTO_SERVER_LOG_MIL("Flush.cpp - execute: After notify source flushed");
 
     // Notify GstGenericPlayer, that flush has been finished
+    RIALTO_SERVER_LOG_MIL("Flush.cpp - execute: Before set source flushed");
     m_player.setSourceFlushed(m_type);
+    RIALTO_SERVER_LOG_MIL("Flush.cpp - execute: After set source flushed");
 
     if (m_context.setupSourceFinished)
     {
         // Trigger NeedData for source
+        RIALTO_SERVER_LOG_MIL("Flush.cpp - execute: Trigger need data");
         NeedData task{m_context, m_player, m_gstPlayerClient, GST_APP_SRC(source)};
         task.execute();
     }

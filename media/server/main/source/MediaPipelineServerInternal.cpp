@@ -860,18 +860,19 @@ bool MediaPipelineServerInternal::getVolumeInternal(double &currentVolume)
 
 bool MediaPipelineServerInternal::setMute(std::int32_t sourceId, bool mute)
 {
-    RIALTO_SERVER_LOG_DEBUG("entry:");
+    RIALTO_SERVER_LOG_MIL("MediaPipelineServerInternal.cpp - setMute: Entry");
 
     bool result;
     auto task = [&]() { result = setMuteInternal(sourceId, mute); };
 
+    RIALTO_SERVER_LOG_MIL("MediaPipelineServerInternal.cpp - setMute: Before enqueue");
     m_mainThread->enqueueTaskAndWait(m_mainThreadClientId, task);
     return result;
 }
 
 bool MediaPipelineServerInternal::setMuteInternal(std::int32_t sourceId, bool mute)
 {
-    RIALTO_SERVER_LOG_DEBUG("entry:");
+    RIALTO_SERVER_LOG_MIL("MediaPipelineServerInternal.cpp - setMuteInternal: Entry");
 
     if (!m_gstPlayer)
     {
@@ -1149,7 +1150,9 @@ bool MediaPipelineServerInternal::flushInternal(int32_t sourceId, bool resetTime
         return false;
     }
 
+    RIALTO_SERVER_LOG_MIL("Before player->flush");
     m_gstPlayer->flush(sourceIter->first, resetTime, async);
+    RIALTO_SERVER_LOG_MIL("After player->flush");
 
     // Reset Eos on flush
     auto it = m_isMediaTypeEosMap.find(sourceIter->first);

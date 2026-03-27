@@ -41,7 +41,7 @@ SetMute::~SetMute()
 
 void SetMute::execute() const
 {
-    RIALTO_SERVER_LOG_DEBUG("Executing SetMute");
+    RIALTO_SERVER_LOG_MIL("Executing SetMute");
     if (m_mediaSourceType == MediaSourceType::SUBTITLE)
     {
         if (!m_context.subtitleSink)
@@ -67,7 +67,7 @@ void SetMute::execute() const
     }
     else
     {
-        RIALTO_SERVER_LOG_ERROR("Setting mute for type %s unsupported",
+        RIALTO_SERVER_LOG_MIL("Setting mute for type %s unsupported",
                                 common::convertMediaSourceType(m_mediaSourceType));
         return;
     }

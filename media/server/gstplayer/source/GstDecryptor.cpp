@@ -306,7 +306,7 @@ GstFlowReturn GstRialtoDecryptorPrivate::decrypt(GstBuffer *buffer, GstCaps *cap
             }
             else
             {
-                printf("VRN decrypt called with keySessionId=%s, buffer=%p, caps=%p\n", protectionData->keySessionId, buffer, caps);
+                printf("VRN decrypt called with keySessionId=%d, buffer=%p, caps=%p\n", protectionData->keySessionId, buffer, caps);
                 firebolt::rialto::MediaKeyErrorStatus status =
                     m_decryptionService->decrypt(protectionData->keySessionId, buffer, caps);
                 if (firebolt::rialto::MediaKeyErrorStatus::OK != status)

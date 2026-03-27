@@ -163,6 +163,7 @@ void SessionManagementServerTests::serverWillFailToInitializeWithFd()
 void SessionManagementServerTests::serverWillStart()
 {
     EXPECT_CALL(*m_serverMock, process()).WillOnce(Return(false));
+    EXPECT_CALL(*m_serverMock, wake()).Times(testing::AtMost(1));
 }
 
 void SessionManagementServerTests::clientWillConnect()

@@ -1604,23 +1604,37 @@ void MediaPipelineServerInternal::scheduleNotifyNeedMediaData(MediaSourceType me
         return;
     }
 
+    std::chrono::milliseconds delay = getNeedMediaDataTimeout(mediaSourceType);
+
+    auto it = m_needMediaDataBackoff.find(mediaSourceType);
+    if (it != m_needMediaDataBackoff.end())
+    {
+        delay = it->second;
+    }
+
     m_needMediaDataTimers[mediaSourceType] =
         m_timerFactory
-            ->createTimer(getNeedMediaDataTimeout(mediaSourceType),
-                          [this, mediaSourceType]()
+            ->createTimer(delay,
+                          [this, mediaSourceType, delay]()
                           {
                               m_mainThread
                                   ->enqueueTask(m_mainThreadClientId,
-                                                [this, mediaSourceType]()
+                                                [this, mediaSourceType, delay]()
                                                 {
                                                     m_needMediaDataTimers.erase(mediaSourceType);
                                                     if (!notifyNeedMediaDataInternal(mediaSourceType))
                                                     {
+                                                        updateNeedMediaDataDelay(mediaSourceType, delay);
+
                                                         RIALTO_SERVER_LOG_WARN("Scheduled Need media data sending "
                                                                                "failed for: %s. Scheduling again...",
                                                                                common::convertMediaSourceType(
                                                                                    mediaSourceType));
                                                         scheduleNotifyNeedMediaData(mediaSourceType);
+                                                    }
+                                                    else
+                                                    {
+                                                        resetNeedMediaDataBackoff(mediaSourceType);
                                                     }
                                                 });
                           });
@@ -1636,5 +1650,19 @@ std::chrono::milliseconds MediaPipelineServerInternal::getNeedMediaDataTimeout(M
         return kNeedMediaDataResendTimeMsForLowLatency;
     }
     return kDefaultNeedMediaDataResendTimeMs;
+}
+
+void MediaPipelineServerInternal::updateNeedMediaDataDelay(MediaSourceType mediaSourceType,
+                                                           std::chrono::milliseconds delay)
+{
+    constexpr std::chrono::milliseconds k_backoffMaxRetryDelay{500};
+    constexpr uint32_t k_backoffMultiplier{2};
+    auto nextDelay = std::min(delay * k_backoffMultiplier, k_backoffMaxRetryDelay);
+    m_needMediaDataBackoff[mediaSourceType] = nextDelay;
+}
+
+void MediaPipelineServerInternal::resetNeedMediaDataBackoff(MediaSourceType mediaSourceType)
+{
+    m_needMediaDataBackoff.erase(mediaSourceType);
 }
 }; // namespace firebolt::rialto::server

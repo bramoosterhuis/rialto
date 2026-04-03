@@ -56,6 +56,7 @@ bool ConfigReader::read()
     parseNumOfPreloadedServers(root);
     parseLogLevel(root);
     parseNumOfPingsBeforeRecovery(root);
+    parseProfilerConfig(root);
 
     return true;
 }
@@ -162,6 +163,11 @@ void ConfigReader::parseNumOfPingsBeforeRecovery(std::shared_ptr<firebolt::rialt
     m_numOfPingsBeforeRecovery = getUInt(root, "numOfPingsBeforeRecovery");
 }
 
+void ConfigReader::parseProfilerConfig(std::shared_ptr<firebolt::rialto::wrappers::IJsonValueWrapper> root)
+{
+    m_profilerConfig = getString(root, "profilerConfig");
+}
+
 std::list<std::string> ConfigReader::getEnvironmentVariables()
 {
     return m_envVars;
@@ -215,6 +221,11 @@ std::optional<rialto::servermanager::service::LoggingLevels> ConfigReader::getLo
 std::optional<unsigned int> ConfigReader::getNumOfPingsBeforeRecovery()
 {
     return m_numOfPingsBeforeRecovery;
+}
+
+std::optional<std::string> ConfigReader::getProfilerConfig()
+{
+    return m_profilerConfig;
 }
 
 std::list<std::string> ConfigReader::getListOfStrings(std::shared_ptr<firebolt::rialto::wrappers::IJsonValueWrapper> root,

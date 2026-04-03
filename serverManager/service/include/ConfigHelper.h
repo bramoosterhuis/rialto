@@ -46,6 +46,7 @@ public:
     unsigned int getNumOfPreloadedServers() const;
     unsigned int getNumOfFailedPingsBeforeRecovery() const;
     const rialto::servermanager::service::LoggingLevels &getLoggingLevels() const;
+    const std::string &getProfilerConfig() const;
 
 #ifdef RIALTO_ENABLE_CONFIG_FILE
 private:
@@ -65,6 +66,7 @@ private:
     unsigned int m_numOfPreloadedServers;
     unsigned int m_numOfFailedPingsBeforeRecovery;
     rialto::servermanager::service::LoggingLevels m_loggingLevels;
+    std::string m_profilerConfig;
 };
 } // namespace rialto::servermanager::service
 

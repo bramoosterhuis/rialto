@@ -32,14 +32,15 @@ class GstProfilerMock : public IGstProfiler
 {
 public:
     GstProfilerMock() = default;
-    virtual ~GstProfilerMock() = default;
+    ~GstProfilerMock() override = default;
 
     MOCK_METHOD(std::optional<RecordId>, createRecord, (std::string stage), (override));
     MOCK_METHOD(std::optional<RecordId>, createRecord, (std::string stage, std::string info), (override));
 
-    MOCK_METHOD(void, scheduleGstElementRecord, (GstElement * element), (override));
+    MOCK_METHOD(void, scheduleGstElementRecord, (GstElement *element), (override));
 
     MOCK_METHOD(void, logRecord, (RecordId id), (override));
+    MOCK_METHOD(void, logPipeline, (), (const, override));
 };
 } // namespace firebolt::rialto::server
 

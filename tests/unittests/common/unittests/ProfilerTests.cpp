@@ -107,4 +107,6 @@ TEST_F(ProfilerTests, DumpCreatesFile)
     const std::string content((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
     EXPECT_FALSE(content.empty());
     EXPECT_NE(content.find("StageDump"), std::string::npos);
+
+    std::remove(path.c_str());
 }

@@ -1657,9 +1657,9 @@ std::chrono::milliseconds MediaPipelineServerInternal::getNeedMediaDataTimeout(M
 void MediaPipelineServerInternal::updateNeedMediaDataDelay(MediaSourceType mediaSourceType,
                                                            std::chrono::milliseconds delay)
 {
-    constexpr std::chrono::milliseconds k_backoffMaxRetryDelay{500};
-    constexpr uint32_t k_backoffMultiplier{2};
-    auto nextDelay = std::min(delay * k_backoffMultiplier, k_backoffMaxRetryDelay);
+    constexpr std::chrono::milliseconds kbackoffMaxRetryDelay{500};
+    constexpr uint32_t kbackoffMultiplier{2};
+    auto nextDelay = std::min(delay * kbackoffMultiplier, kbackoffMaxRetryDelay);
     m_needMediaDataBackoff[mediaSourceType] = nextDelay;
 }
 

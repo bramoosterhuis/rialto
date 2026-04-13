@@ -31,6 +31,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include "rdk_perf.h"
 
 namespace
 {
@@ -57,6 +58,7 @@ SessionManagementServer::SessionManagementServer(
       m_webAudioPlayerModule{webAudioPlayerModuleFactory->create(playbackService.getWebAudioPlayerService())},
       m_controlModule{controlModuleFactory->create(playbackService, controlService)}
 {
+    RDKPerf perf(__FUNCTION__);
     m_ipcServer = ipcFactory->create();
 }
 

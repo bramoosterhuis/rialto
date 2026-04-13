@@ -52,6 +52,8 @@ target_include_directories(
 
 target_link_libraries (
         RialtoCommon
+        PUBLIC
+        rdkperf perftool
 
         PRIVATE
         RialtoLogging

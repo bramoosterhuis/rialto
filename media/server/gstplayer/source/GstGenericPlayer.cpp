@@ -463,6 +463,17 @@ GstElement *GstGenericPlayer::getSink(const MediaSourceType &mediaSourceType) co
 void GstGenericPlayer::setSourceFlushed(const MediaSourceType &mediaSourceType)
 {
     m_flushWatcher->setFlushed(mediaSourceType);
+
+    // FIX: Check and apply deferred PAUSED state change after flush completes
+    if (m_context.pendingPausedStateChange && !m_flushWatcher->isAsyncFlushOngoing())
+    {
+        m_context.pendingPausedStateChange = false;
+        RIALTO_SERVER_LOG_INFO("Flush completed, applying deferred PAUSED state change");
+        if (m_gstPlayerClient)
+        {
+            m_gstPlayerClient->notifyPlaybackState(PlaybackState::PAUSED);
+        }
+    }
 }
 
 void GstGenericPlayer::notifyPlaybackInfo()

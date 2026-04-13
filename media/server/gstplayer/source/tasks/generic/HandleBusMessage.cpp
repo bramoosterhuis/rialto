@@ -85,7 +85,10 @@ void HandleBusMessage::execute() const
                     // we can't report playback state, because async flush causes state loss - reported state is probably invalid.
                     if (m_isAsyncFlushOngoingDuringCreation || m_flushWatcher.isAsyncFlushOngoing())
                     {
-                        RIALTO_SERVER_LOG_WARN("Skip PAUSED notification - flush is ongoing");
+                        //RIALTO_SERVER_LOG_WARN("Skip PAUSED notification - flush is ongoing");
+			// FIX: Instead of skipping, defer the PAUSED state change until flush completes
+                        m_context.pendingPausedStateChange = true;
+                        RIALTO_SERVER_LOG_WARN("Async flush ongoing, deferring PAUSED state change");
                         break;
                     }
                     // newState==GST_STATE_PAUSED, pending==GST_STATE_PAUSED state transition is received as a result of

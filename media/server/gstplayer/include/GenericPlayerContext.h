@@ -196,6 +196,11 @@ struct GenericPlayerContext
     std::optional<bool> pendingShowVideoWindow{};
 
     /**
+     * @brief Pending PAUSED state change notification (deferred during flush)
+     */
+    bool pendingPausedStateChange{false};
+
+    /**
      * @brief Last audio sample timestamps
      * TODO(LLDEV-31012) Needed to detect audio stream underflow
      */

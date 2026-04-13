@@ -146,6 +146,7 @@ GstGenericPlayer::GstGenericPlayer(
 
     gstInitialiser.waitForInitialisation();
 
+    m_context.isLive = isLive;
     m_context.decryptionService = &decryptionService;
 
     if ((!gstSrcFactory) || (!(m_context.gstSrc = gstSrcFactory->getGstSrc())))
@@ -480,63 +481,63 @@ void GstGenericPlayer::notifyPlaybackInfo()
 
 void GstGenericPlayer::enableBroadcomDecoderWorkaround()
 {
-    static int attempt{0};
-    if (!m_isLive)
-    {
-        // This workaround has to be enabled only for live streams
-        return;
-    }
-    GstElementFactory *factory = m_gstWrapper->gstElementFactoryFind("brcmaudiosink");
-    if (!factory)
-    {
-        // This workaround has to be enabled only for broadcom platform
-        return;
-    }
-    m_gstWrapper->gstObjectUnref(GST_OBJECT(factory));
-    if (m_playbackRateChangeTimer && m_playbackRateChangeTimer->isActive())
-    {
-        // Timer is already running, no need to start it again
-        return;
-    }
-    attempt = 0;
+    // static int attempt{0};
+    // if (!m_isLive)
+    // {
+    //     // This workaround has to be enabled only for live streams
+    //     return;
+    // }
+    // GstElementFactory *factory = m_gstWrapper->gstElementFactoryFind("brcmaudiosink");
+    // if (!factory)
+    // {
+    //     // This workaround has to be enabled only for broadcom platform
+    //     return;
+    // }
+    // m_gstWrapper->gstObjectUnref(GST_OBJECT(factory));
+    // if (m_playbackRateChangeTimer && m_playbackRateChangeTimer->isActive())
+    // {
+    //     // Timer is already running, no need to start it again
+    //     return;
+    // }
+    // attempt = 0;
 
-    m_playbackRateChangeTimer = m_timerFactory->createTimer(
-        kDecoderStateCheckPeriod,
-        [&]()
-        {
-            GstElement *videoDecoder = getDecoder(MediaSourceType::VIDEO);
-            uint32_t frames{std::numeric_limits<uint32_t>::max()};
-            if (videoDecoder)
-            {
-                m_glibWrapper->gObjectGet(videoDecoder, "queued_frames", &frames, nullptr);
-                m_glibWrapper->gObjectUnref(videoDecoder);
-            }
-            if (frames == std::numeric_limits<uint32_t>::max() || frames >= kRequiredQueuedFrames ||
-                attempt++ == kDecoderStateCheckMaxAttempts)
-            {
-                GstStructure *structure{m_gstWrapper->gstStructureNew("custom-instant-rate-change", "rate", G_TYPE_DOUBLE,
-                                                                      kDefaultInitialRateCorrectionSpeed, NULL)};
-                m_gstWrapper->gstElementSendEvent(m_context.pipeline,
-                                                  m_gstWrapper->gstEventNewCustom(GST_EVENT_CUSTOM_DOWNSTREAM_OOB,
-                                                                                  structure));
-                structure = m_gstWrapper->gstStructureNew("custom-instant-rate-change", "rate", G_TYPE_DOUBLE, 1.0, NULL);
-                m_gstWrapper->gstElementSendEvent(m_context.pipeline,
-                                                  m_gstWrapper->gstEventNewCustom(GST_EVENT_CUSTOM_DOWNSTREAM_OOB,
-                                                                                  structure));
-                m_playbackRateChangeTimer->cancel();
-                RIALTO_SERVER_LOG_DEBUG("Broadcom decoder workaround enabled after %d attempts", attempt);
-            }
-        },
-        firebolt::rialto::common::TimerType::PERIODIC);
+    // m_playbackRateChangeTimer = m_timerFactory->createTimer(
+    //     kDecoderStateCheckPeriod,
+    //     [&]()
+    //     {
+    //         GstElement *videoDecoder = getDecoder(MediaSourceType::VIDEO);
+    //         uint32_t frames{std::numeric_limits<uint32_t>::max()};
+    //         if (videoDecoder)
+    //         {
+    //             m_glibWrapper->gObjectGet(videoDecoder, "queued_frames", &frames, nullptr);
+    //             m_glibWrapper->gObjectUnref(videoDecoder);
+    //         }
+    //         if (frames == std::numeric_limits<uint32_t>::max() || frames >= kRequiredQueuedFrames ||
+    //             attempt++ == kDecoderStateCheckMaxAttempts)
+    //         {
+    //             GstStructure *structure{m_gstWrapper->gstStructureNew("custom-instant-rate-change", "rate", G_TYPE_DOUBLE,
+    //                                                                   kDefaultInitialRateCorrectionSpeed, NULL)};
+    //             m_gstWrapper->gstElementSendEvent(m_context.pipeline,
+    //                                               m_gstWrapper->gstEventNewCustom(GST_EVENT_CUSTOM_DOWNSTREAM_OOB,
+    //                                                                               structure));
+    //             structure = m_gstWrapper->gstStructureNew("custom-instant-rate-change", "rate", G_TYPE_DOUBLE, 1.0, NULL);
+    //             m_gstWrapper->gstElementSendEvent(m_context.pipeline,
+    //                                               m_gstWrapper->gstEventNewCustom(GST_EVENT_CUSTOM_DOWNSTREAM_OOB,
+    //                                                                               structure));
+    //             m_playbackRateChangeTimer->cancel();
+    //             RIALTO_SERVER_LOG_DEBUG("Broadcom decoder workaround enabled after %d attempts", attempt);
+    //         }
+    //     },
+    //     firebolt::rialto::common::TimerType::PERIODIC);
 }
 
 void GstGenericPlayer::cancelBroadcomDecoderWorkaroundTimer()
 {
-    if (m_playbackRateChangeTimer)
-    {
-        m_playbackRateChangeTimer->cancel();
-        m_playbackRateChangeTimer.reset();
-    }
+    // if (m_playbackRateChangeTimer)
+    // {
+    //     m_playbackRateChangeTimer->cancel();
+    //     m_playbackRateChangeTimer.reset();
+    // }
 }
 
 GstElement *GstGenericPlayer::getDecoder(const MediaSourceType &mediaSourceType)

@@ -213,6 +213,11 @@ void SetupElement::execute() const
     {
         m_glibWrapper->gObjectSet(m_element, "async", TRUE, nullptr);
     }
+    else if (m_context.isLive && m_glibWrapper->gStrHasPrefix(GST_ELEMENT_NAME(m_element), "brcmaudiodecoder"))
+    {
+        RIALTO_SERVER_LOG_INFO("Enabling rate correction for broadcom decoder.");
+        m_glibWrapper->gObjectSet(m_element, "enable-rate-correction", TRUE, nullptr);
+    }
     else if (m_glibWrapper->gStrHasPrefix(GST_ELEMENT_NAME(m_element), "rialtotexttracksink"))
     {
         // in cannot be set during construction, because playsink overwrites "sync" value of text-sink during setup

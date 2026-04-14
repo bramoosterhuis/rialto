@@ -62,9 +62,7 @@ public:
 private:
     service::IPlaybackService &m_playbackService;
     service::IControlService &m_controlService;
-    std::map<std::weak_ptr<::firebolt::rialto::ipc::IClient>, std::set<int>,
-             std::owner_less<std::weak_ptr<::firebolt::rialto::ipc::IClient>>>
-        m_controlIds;
+    std::map<std::shared_ptr<::firebolt::rialto::ipc::IClient>, std::set<int>> m_controlIds;
 };
 } // namespace firebolt::rialto::server::ipc
 

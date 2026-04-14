@@ -161,6 +161,17 @@ TEST_F(ActiveRequestsTests, insertShouldHandleDuplicateId)
     EXPECT_EQ(firebolt::rialto::MediaSourceType::AUDIO, m_sut.getType(2));
 }
 
+TEST_F(ActiveRequestsTests, insertShouldResolveDuplicateIdCollision)
+{
+    EXPECT_EQ(0, m_sut.insert(firebolt::rialto::MediaSourceType::AUDIO, 100));
+    EXPECT_EQ(firebolt::rialto::MediaSourceType::AUDIO, m_sut.getType(0));
+
+    m_sut.insert(firebolt::rialto::MediaSourceType::VIDEO, 100);
+
+    EXPECT_EQ(2, m_sut.insert(firebolt::rialto::MediaSourceType::AUDIO, 100));
+    EXPECT_EQ(firebolt::rialto::MediaSourceType::AUDIO, m_sut.getType(2));
+}
+
 TEST_F(ActiveRequestsTests, shouldAddAndRemoveSegments)
 {
     std::vector<uint8_t> data{'T', 'E', 'S', 'T'};

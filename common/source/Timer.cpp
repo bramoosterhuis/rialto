@@ -18,6 +18,7 @@
  */
 
 #include "Timer.h"
+#include "TimerFdManager.h"
 #include "RialtoCommonLogging.h"
 
 namespace firebolt::rialto::common
@@ -52,41 +53,29 @@ std::unique_ptr<ITimer> TimerFactory::createTimer(const std::chrono::millisecond
 }
 
 Timer::Timer(const std::chrono::milliseconds &timeout, const std::function<void()> &callback, TimerType timerType)
-    : m_active{true}, m_timeout{timeout}, m_callback{callback}
+    : m_active{true}
 {
-    m_thread = std::thread(
-        [this, timerType]()
-        {
-            do
-            {
-                std::unique_lock<std::mutex> lock{m_mutex};
-                if (!m_cv.wait_for(lock, m_timeout, [this]() { return !m_active; }))
-                {
-                    if (m_active && m_callback)
-                    {
-                        lock.unlock();
-                        m_callback();
-                    }
-                }
-            } while (timerType == TimerType::PERIODIC && m_active);
-            m_active = false;
-        });
+
+    m_id = firebolt::rialto::common::TimerFdManager::instance()
+               .add(timeout, timerType, [this, callback]{
+                   if (m_active && callback)
+                       callback();
+                   if (m_timerType == TimerType::ONE_SHOT)
+                       m_active = false;
+               });
 }
+
 
 Timer::~Timer()
 {
-    cancel();
+
+   m_active = false;
+   rialto::common::TimerFdManager::instance().cancel(m_id);
+
 }
 
 void Timer::cancel()
 {
-    m_active = false;
-
-    if (std::this_thread::get_id() != m_thread.get_id() && m_thread.joinable())
-    {
-        m_cv.notify_one();
-        m_thread.join();
-    }
 }
 
 bool Timer::isActive() const

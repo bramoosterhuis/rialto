@@ -36,6 +36,10 @@ std::shared_ptr<IWebAudioPlayerIpcFactory> IWebAudioPlayerIpcFactory::getFactory
     catch (const std::exception &e)
     {
         RIALTO_CLIENT_LOG_ERROR("Failed to create the web audio player ipc factory, reason: %s", e.what());
+        char telemetryBuff[128] = {0};
+        snprintf(telemetryBuff, sizeof(telemetryBuff),
+                                "Failed to create the web audio player ipc factory, reason: %s", e.what());
+        TELEMETRY_EVENT_STRING("Rialto Server - WebAudioPlayerIpc", telemetryBuff);
     }
 
     return factory;
@@ -58,6 +62,10 @@ WebAudioPlayerIpcFactory::createWebAudioPlayerIpc(IWebAudioPlayerIpcClient *clie
     catch (const std::exception &e)
     {
         RIALTO_CLIENT_LOG_ERROR("Failed to create the web audio player ipc, reason: %s", e.what());
+        char telemetryBuff[128] = {0};
+        snprintf(telemetryBuff, sizeof(telemetryBuff),
+                                "Failed to create the web audio player ipc , reason: %s", e.what());
+        TELEMETRY_EVENT_STRING("Rialto Server - WebAudioPlayerIpc", telemetryBuff);
     }
 
     return webAudioPlayerIpc;

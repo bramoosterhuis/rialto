@@ -29,10 +29,12 @@
 #include <mutex>
 
 #include "IGstSrc.h"
+#include "GstPlayerConfig.h"
 
 namespace firebolt::rialto::server
 {
-constexpr uint32_t kMaxWebAudioBytes{10 * 1024};
+// WebAudio buffer limits are now defined in GstPlayerConfig.h
+// Use kWebAudioMaxBytes and kWebAudioMaxBuffers constants
 
 struct WebAudioPlayerContext
 {

@@ -386,7 +386,7 @@ void WebAudioTasksTestsBase::shouldNotWriteBufferIfPushBufferFails()
 void WebAudioTasksTestsBase::shouldNotWriteBufferIfBytesToWriteLessThanBytesPerSample()
 {
     EXPECT_CALL(*testContext->m_gstWrapper, gstAppSrcGetCurrentLevelBytes(GST_APP_SRC(&testContext->m_src)))
-        .WillOnce(Return(firebolt::rialto::server::kMaxWebAudioBytes - testContext->m_context.bytesPerSample + 1));
+        .WillOnce(Return(firebolt::rialto::server::kWebAudioMaxBytes - testContext->m_context.bytesPerSample + 1));
 }
 
 void WebAudioTasksTestsBase::shouldWriteBufferThatNotAlignedWithBytesPerSample()

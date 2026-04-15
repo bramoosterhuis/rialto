@@ -44,7 +44,7 @@ void WriteBuffer::execute() const
 {
     RIALTO_SERVER_LOG_DEBUG("Executing WriteBuffer");
 
-    uint64_t freeBytes = kMaxWebAudioBytes - m_gstWrapper->gstAppSrcGetCurrentLevelBytes(GST_APP_SRC(m_context.source));
+    uint64_t freeBytes = kWebAudioMaxBytes - m_gstWrapper->gstAppSrcGetCurrentLevelBytes(GST_APP_SRC(m_context.source));
     uint64_t maxBytesToWrite = std::min(freeBytes, m_mainLength + m_wrapLength);
     uint64_t bytesToWrite = maxBytesToWrite - (maxBytesToWrite % m_context.bytesPerSample);
     uint64_t bytesWritten = 0;
@@ -79,6 +79,11 @@ void WriteBuffer::execute() const
                                        ", actual %" PRIu64,
                                        bytesToWrite, bytesWritten);
             }
+
+#ifdef RIALTO_ENABLE_BUFFER_SIZE_LOGGING
+            gsize bufferSize = gst_buffer_get_size(gstBuffer);
+            GST_DEBUG("Pushing WebAudio buffer of size: %zu bytes", bufferSize);
+#endif
 
             if (GST_FLOW_OK != m_gstWrapper->gstAppSrcPushBuffer(GST_APP_SRC(m_context.source), gstBuffer))
             {

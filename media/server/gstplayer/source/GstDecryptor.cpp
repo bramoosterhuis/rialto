@@ -382,28 +382,37 @@ GstFlowReturn GstRialtoDecryptorPrivate::decrypt(GstBuffer *buffer, GstCaps *cap
         std::string message = "Failed to decrypt buffer, dropping frame and continuing";
         if (keyId.empty())
         {
-            keyId = extractKeyId(m_gstWrapper, protectionData->key);
-        }
-
-        if (!keyId.empty())
+        if (m_decryptionService)
         {
-            firebolt::rialto::KeyStatus keyStatus{firebolt::rialto::KeyStatus::INTERNAL_ERROR};
-            if (firebolt::rialto::MediaKeyErrorStatus::OK ==
-                m_decryptionService->getKeyStatus(protectionData->keySessionId, keyId, keyStatus))
+            if (keyId.empty())
             {
-                GST_WARNING_OBJECT(self, "Key status after decrypt failure: %s", toString(keyStatus));
-                message.append("[");
-                message.append(toString(keyStatus));
-                message.append("]");
+                keyId = extractKeyId(m_gstWrapper, protectionData->key);
+            }
+
+            if (!keyId.empty())
+            {
+                firebolt::rialto::KeyStatus keyStatus{firebolt::rialto::KeyStatus::INTERNAL_ERROR};
+                if (firebolt::rialto::MediaKeyErrorStatus::OK ==
+                    m_decryptionService->getKeyStatus(protectionData->keySessionId, keyId, keyStatus))
+                {
+                    GST_WARNING_OBJECT(self, "Key status after decrypt failure: %s", toString(keyStatus));
+                    message += "[";
+                    message += toString(keyStatus);
+                    message += "]";
+                }
+                else
+                {
+                    GST_WARNING_OBJECT(self, "Failed to get key status after decrypt failure");
+                }
             }
             else
             {
-                GST_WARNING_OBJECT(self, "Failed to get key status after decrypt failure");
+                GST_WARNING_OBJECT(self, "Failed to extract key id after decrypt failure");
             }
         }
         else
         {
-            GST_WARNING_OBJECT(self, "Failed to extract key id after decrypt failure");
+            GST_WARNING_OBJECT(self, "No decryption service available after decrypt failure");
         }
         GError *gError{m_glibWrapper->gErrorNewLiteral(GST_STREAM_ERROR, GST_STREAM_ERROR_DECRYPT, message.c_str())};
         gboolean result =

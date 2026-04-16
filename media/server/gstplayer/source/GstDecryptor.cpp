@@ -380,8 +380,6 @@ GstFlowReturn GstRialtoDecryptorPrivate::decrypt(GstBuffer *buffer, GstCaps *cap
     {
         // Notify dropped frame upstream as a non-fatal message
         std::string message = "Failed to decrypt buffer, dropping frame and continuing";
-        if (keyId.empty())
-        {
         if (m_decryptionService)
         {
             if (keyId.empty())

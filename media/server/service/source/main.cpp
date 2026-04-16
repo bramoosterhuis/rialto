@@ -56,8 +56,10 @@ int main(int argc, char *argv[])
     {
         return EXIT_FAILURE;
     }
-    appSessionServer->startService();
 
+    GstPerf* rialto_perf = new GstPerf("rialtoseesionserver_perf");                
+    appSessionServer->startService();
+    delete rialto_perf;
 #ifdef FREE_MEM_BEFORE_EXIT
     RIALTO_SERVER_LOG_INFO("Calling ShutdownProtobufLibrary");
     google::protobuf::ShutdownProtobufLibrary();

@@ -392,7 +392,9 @@ GstFlowReturn GstRialtoDecryptorPrivate::decrypt(GstBuffer *buffer, GstCaps *cap
                 m_decryptionService->getKeyStatus(protectionData->keySessionId, keyId, keyStatus))
             {
                 GST_WARNING_OBJECT(self, "Key status after decrypt failure: %s", toString(keyStatus));
-				message.append("[%s]", toString(keyStatus));
+                message.append("[");
+                message.append(toString(keyStatus));
+                message.append("]");
             }
             else
             {

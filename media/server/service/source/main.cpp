@@ -23,6 +23,7 @@
 #include "IApplicationSessionServer.h"
 #include "IGstInitialiser.h"
 #include "RialtoServerLogging.h"
+#include "rdk_perf.h"
 
 // NOLINT(build/filename_format)
 
